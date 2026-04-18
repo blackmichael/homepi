@@ -1,6 +1,6 @@
 services:
   bluesky_feeds:
-    image: bluesky-feeds:arm64
+    image: ghcr.io/blackmichael/bluesky-feeds:latest
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -10,6 +10,7 @@ services:
       PORT: ${PORT}
       DATABASE_PATH: ${DATABASE_PATH}
       FEEDGEN_HOSTNAME: ${FEEDGEN_HOSTNAME}
+      FEEDGEN_PUBLISHER_DID: ${FEEDGEN_PUBLISHER_DID}
       FEEDGEN_FIREHOSE_URL: ${FEEDGEN_FIREHOSE_URL}
     volumes:
       - /mnt/data/sqlite:/data
