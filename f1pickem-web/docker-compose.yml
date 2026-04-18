@@ -1,0 +1,17 @@
+services:
+  f1pickem_demo:
+    image: f1pickem-demo:latest
+    restart: unless-stopped
+    networks:
+      - proxy_external
+    ports:
+      - "3001:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.f1pickem.rule=Host(`f1pickem.michaelblack.xyz`)"
+      - "traefik.http.routers.f1pickem.entrypoints=web"
+      - "traefik.http.services.f1pickem.loadbalancer.server.port=80"
+
+networks:
+  proxy_external:
+    external: true

@@ -1,0 +1,33 @@
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yaml --credentials-file /run/cloudflared/tunnel-credentials.json --no-autoupdate run ${CLOUDFLARED_TUNNEL_ID}
+    volumes:
+      - ./cloudflared/config.yaml:/etc/cloudflared/config.yaml:ro
+      - ./.runtime:/run/cloudflared:ro
+    networks:
+      - proxy_external
+
+  traefik:
+    image: traefik:v3
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8080:8080"
+    command:
+      - "--api.insecure=true"
+      - "--log.level=DEBUG"
+      - "--accessLog"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro # Sync time
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - proxy_external
+
+networks:
+  proxy_external:
+    external: true

@@ -1,0 +1,24 @@
+services:
+  bluesky_feeds:
+    image: bluesky-feeds:arm64
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - proxy_external
+    environment:
+      PORT: ${PORT}
+      DATABASE_PATH: ${DATABASE_PATH}
+      FEEDGEN_HOSTNAME: ${FEEDGEN_HOSTNAME}
+      FEEDGEN_FIREHOSE_URL: ${FEEDGEN_FIREHOSE_URL}
+    volumes:
+      - /mnt/data/sqlite:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`bluesky.michaelblack.xyz`)"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.services.api.loadbalancer.server.port=3000"
+
+networks:
+  proxy_external:
+    external: true

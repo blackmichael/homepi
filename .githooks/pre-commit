@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+
+"$ROOT_DIR/scripts/check-env-templates.sh" --staged
+
+ENV_TEMPLATE_FILES=()
+while IFS= read -r file; do
+    if [[ -n "$file" ]]; then
+        ENV_TEMPLATE_FILES+=("$file")
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR -- '*.env.template')
+
+if [[ ${#ENV_TEMPLATE_FILES[@]} -eq 0 ]]; then
+    exit 0
+fi
+
+confirm_file() {
+    local file="$1"
+
+    if [[ "${HOMEPI_ENV_TEMPLATE_ACK:-}" == "1" ]]; then
+        return 0
+    fi
+
+    if [[ ! -r /dev/tty ]]; then
+        echo "Pre-commit blocked: $file changed but no interactive terminal available for confirmation." >&2
+        echo "Re-run commit in terminal or set HOMEPI_ENV_TEMPLATE_ACK=1 after reviewing changes." >&2
+        return 1
+    fi
+
+    echo >&2
+    echo "Review staged changes for $file:" >&2
+    git diff --cached -- "$file" >&2
+
+    local reply
+    read -r -p "Type 'yes' to confirm $file contains no plaintext secrets: " reply < /dev/tty
+    echo >&2
+
+    if [[ "$reply" != "yes" ]]; then
+        echo "Pre-commit blocked: confirmation not provided for $file." >&2
+        return 1
+    fi
+}
+
+for file in "${ENV_TEMPLATE_FILES[@]}"; do
+    confirm_file "$file"
+done

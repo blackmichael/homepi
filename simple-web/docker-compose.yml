@@ -1,0 +1,17 @@
+services:
+  simple:
+    image: nginx:latest
+    restart: unless-stopped
+    networks:
+      - proxy_external
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simple.rule=Host(`simple.michaelblack.xyz`)"
+      - "traefik.http.routers.simple.entrypoints=web"
+      - "traefik.http.services.simple.loadbalancer.server.port=80"
+
+networks:
+  proxy_external:
+    external: true

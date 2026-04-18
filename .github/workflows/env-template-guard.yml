@@ -1,0 +1,16 @@
+name: Env Template Guard
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  scan-env-templates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan .env.template files
+        run: ./scripts/check-env-templates.sh --worktree
