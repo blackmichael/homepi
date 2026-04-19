@@ -1,5 +1,4 @@
 tunnel: 68955cd9-723c-44e6-a49f-557730fe1d92
-credentials-file: /run/secrets/tunnel-credentials
 
 url: http://traefik:80
 ingress:

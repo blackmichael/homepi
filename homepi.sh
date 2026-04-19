@@ -33,50 +33,6 @@ compose_file_for_app() {
     fi
 }
 
-prepare_runtime_secrets() {
-    local app="$1"
-    local compose_dir="$2"
-    local env_template="$3"
-
-    if [[ "$app" != "$INFRASTRUCTURE_APP" ]]; then
-        return 0
-    fi
-
-    local runtime_dir="$compose_dir/$INFRASTRUCTURE_RUNTIME_DIR"
-    local credentials_file="$runtime_dir/$INFRASTRUCTURE_CREDENTIALS_FILE"
-
-    mkdir -p "$runtime_dir"
-    chmod 700 "$runtime_dir"
-
-    if [[ "$NO_SECRETS" == "true" ]]; then
-        if [[ ! -f "$credentials_file" ]]; then
-            echo "Error: missing $credentials_file. Start without --no-secrets or create runtime credentials file first." >&2
-            return 1
-        fi
-        return 0
-    fi
-
-    if [[ -z "$env_template" ]]; then
-        echo "Error: $app requires $compose_dir/.env.template to load tunnel credentials." >&2
-        return 1
-    fi
-
-    if ! command -v op >/dev/null 2>&1; then
-        echo "Error: 1Password CLI ('op') is required to load secrets for $app." >&2
-        return 1
-    fi
-
-    op run --env-file "$env_template" -- /bin/sh -c '
-        if [ -z "${CLOUDFLARED_TUNNEL_CREDENTIALS_JSON:-}" ]; then
-            echo "Error: CLOUDFLARED_TUNNEL_CREDENTIALS_JSON is not set." >&2
-            exit 1
-        fi
-
-        umask 077
-        printf "%s" "$CLOUDFLARED_TUNNEL_CREDENTIALS_JSON" > "$1"
-    ' sh "$credentials_file"
-}
-
 cleanup_runtime_secrets() {
     local app="$1"
     local compose_dir="$2"
@@ -180,7 +136,6 @@ start_app() {
     fi
 
     echo "Starting $app..."
-    prepare_runtime_secrets "$app" "$compose_dir" "$env_template"
     run_compose_up "$compose_file" "$env_template" "$pull"
 }
 

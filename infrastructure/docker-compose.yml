@@ -2,7 +2,9 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
-    command: tunnel --config /etc/cloudflared/config.yaml --credentials-file /run/cloudflared/tunnel-credentials.json --no-autoupdate run ${CLOUDFLARED_TUNNEL_ID}
+    command: tunnel --config /etc/cloudflared/config.yaml --no-autoupdate run ${CLOUDFLARED_TUNNEL_ID}
+    environment:
+      TUNNEL_CRED_CONTENTS: ${CLOUDFLARED_TUNNEL_CREDENTIALS_JSON}
     volumes:
       - ./cloudflared/config.yaml:/etc/cloudflared/config.yaml:ro
       - ./.runtime:/run/cloudflared:ro
