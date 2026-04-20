@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: HomePi app directory to deploy
+        required: true
+        type: string
+  repository_dispatch:
+    types:
+      - deploy-homepi
+
+concurrency:
+  group: deploy-homepi
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - linux
+      - arm64
+      - homepi-deploy
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve deploy target
+        id: target
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            bash ./scripts/resolve-deploy-target.sh --app '${{ inputs.app }}' >> "$GITHUB_OUTPUT"
+          else
+            bash ./scripts/resolve-deploy-target.sh --source-repo '${{ github.event.client_payload.source_repo || '' }}' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy app
+        shell: bash
+        run: ./homepi.sh --start --app "${{ steps.target.outputs.app }}" --pull --no-secrets

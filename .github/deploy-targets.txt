@@ -1,0 +1,2 @@
+# Format: <homepi app dir>|<source repo>
+bluesky-api|blackmichael/bluesky-feeds

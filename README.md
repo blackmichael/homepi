@@ -46,6 +46,49 @@ Skip 1Password resolution when desired:
 ./homepi.sh --start --app infrastructure --no-secrets
 ```
 
+## Deploy Automation
+
+GitHub Actions can deploy supported applications automatically after new `:latest` images are pushed to `ghcr.io`.
+
+`homepi` expects repo-scoped self-hosted runner on Raspberry Pi with labels `self-hosted`, `linux`, `arm64`, and `homepi-deploy`. Deploy workflow runs only on that runner and executes:
+
+```zsh
+./homepi.sh --start --app <app-dir> --pull --no-secrets
+```
+
+Supported application mappings live in `.github/deploy-targets.txt`.
+
+For automatic deploys, application repo workflow should send `repository_dispatch` event to this repo with:
+- `event_type`: `deploy-homepi`
+- `client_payload.source_repo`: publishing repo name, for example `blackmichael/bluesky-feeds`
+
+Example step from image-publish workflow:
+
+```yaml
+- name: Trigger HomePi deploy
+  run: |
+    gh api repos/blackmichael/homepi/dispatches \
+      -f event_type=deploy-homepi \
+      -f client_payload:='{"source_repo":"${{ github.repository }}"}'
+  env:
+    GH_TOKEN: ${{ secrets.HOMEPI_DISPATCH_TOKEN }}
+```
+
+Store `HOMEPI_DISPATCH_TOKEN` in application repo Actions secrets. Fine-grained PAT scoped to `blackmichael/homepi` with `Contents: Read and write` is sufficient.
+
+Manual retries are also available through GitHub Actions `workflow_dispatch` in this repo. Enter `homepi.sh --app` value, such as `bluesky-api`.
+
+To support new application:
+1. Add app directory with `docker-compose.yml` or `docker-compose.yaml` so `homepi.sh --app <name>` works.
+2. Add one line to `.github/deploy-targets.txt`.
+3. In application repo, add deploy trigger step shown above after successful GHCR push.
+4. Push both repos, then test manual deploy from `homepi` Actions before relying on automatic deploys.
+
+To remove application support:
+1. Remove app line from `.github/deploy-targets.txt`.
+2. Remove or disable dispatch step in application repo workflow.
+3. Remove app directory from this repo if service is retired.
+
 ## Notes
 
 We do not use Docker Compose `env_file` for `.env.template` files containing `op://...` references. Compose reads `env_file` values itself, so those references would not be resolved by `op run`.
