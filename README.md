@@ -41,9 +41,9 @@ Stop apps:
 ./homepi.sh --stop --app all
 ```
 
-Skip 1Password resolution when desired:
+For more usage:
 ```zsh
-./homepi.sh --start --app infrastructure --no-secrets
+./homepi.sh --help
 ```
 
 ## Deploy Automation
@@ -69,7 +69,7 @@ Example step from image-publish workflow:
   run: |
     gh api repos/blackmichael/homepi/dispatches \
       -f event_type=deploy-homepi \
-      -f client_payload:='{"source_repo":"${{ github.repository }}"}'
+      -f 'client_payload[source_repo]=${{ github.repository }}'
   env:
     GH_TOKEN: ${{ secrets.HOMEPI_DISPATCH_TOKEN }}
 ```
