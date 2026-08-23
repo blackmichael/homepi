@@ -12,21 +12,45 @@ services:
       - proxy_external
 
   traefik:
-    image: traefik:v3
+    image: traefik:3.7.11
     restart: unless-stopped
     ports:
       - "80:80"
       - "8080:8080"
+      # Bind metrics to localhost only
+      - "127.0.0.1:8082:8082"
     command:
-      - "--api.insecure=true"
-      - "--log.level=DEBUG"
-      - "--accessLog"
+      # Docker
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      
+      # HTTP entrypoints
+      - "--api.insecure=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.metrics.address=:8082"
+
+      # Prometheus metrics
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entrypoint=metrics"
+      - "--metrics.prometheus.addentrypointslabels=true"
+      - "--metrics.prometheus.addserviceslabels=true"
+      - "--metrics.prometheus.addrouterslabels=true"
+
+      # Access logs
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--accesslog.format=json"
+      - "--accesslog.filepath=/var/log/traefik/access.log"
+      - "--accesslog.bufferingsize=100"
+
+      # Avoid recording sensitive headers
+      - "--accesslog.fields.headers.defaultmode=drop"
+      - "--accesslog.fields.headers.names.User-Agent=keep"
+      - "--accesslog.fields.headers.names.Content-Type=keep"
     volumes:
       - /etc/localtime:/etc/localtime:ro # Sync time
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /mnt/data/logs/traefik:/var/log/traefik
     networks:
       - proxy_external
 
