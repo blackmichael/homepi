@@ -1,0 +1,15 @@
+services:
+  spareme-web:
+    image: ghcr.io/blackmichael/spareme:latest
+    restart: unless-stopped
+    networks:
+      - proxy_external
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spareme.rule=Host(`spareme.michaelblack.xyz`)"
+      - "traefik.http.routers.spareme.entrypoints=web"
+      - "traefik.http.services.spareme.loadbalancer.server.port=80"
+
+networks:
+  proxy_external:
+    external: true
