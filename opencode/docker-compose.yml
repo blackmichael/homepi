@@ -1,0 +1,45 @@
+services:
+  opencode:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: opencode
+    restart: unless-stopped
+
+    ports:
+      - "4096:4096" # web UI
+      - "3333:3333" # project server port
+
+    environment:
+      SSH_AUTH_SOCK: /ssh-agent
+
+    volumes:
+      # Forward homepi SSH agent socket into container
+      - ${SSH_AUTH_SOCK}:/ssh-agent
+
+      # Repositories OpenCode is allowed to modify.
+      - /mnt/data/dev/projects:/workspace
+
+      # OpenCode config: opencode.json, agents, commands, skills, etc.
+      - /mnt/data/dev/opencode/config:/home/opencode/.config/opencode
+
+      # Agent Skills canonical/global directory.
+      - /mnt/data/dev/opencode/agents:/home/opencode/.agents
+
+      # Session/database/application state.
+      - /mnt/data/dev/opencode/data:/home/opencode/.local/share
+
+      # Optional: avoid repeatedly downloading npm/npx packages.
+      - /mnt/data/dev/opencode/npm:/home/opencode/.npm
+
+    mem_limit: 3g
+    memswap_limit: 4g
+    cpus: 2.0
+    pids_limit: 512
+
+    tmpfs:
+      - /tmp:size=512m
+
+    security_opt:
+      - no-new-privileges:true
