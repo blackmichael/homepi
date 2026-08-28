@@ -11,12 +11,10 @@ services:
       - "4096:4096" # web UI
       - "3333:3333" # project server port
 
-    environment:
-      SSH_AUTH_SOCK: /ssh-agent
-
     volumes:
-      # Forward homepi SSH agent socket into container
-      - ${SSH_AUTH_SOCK}:/ssh-agent
+      # SSH (opencode-specific key manually generated)
+      - /mnt/data/dev/opencode/ssh/id_ed25519:/home/opencode/.ssh/id_ed25519:ro
+      - /home/michael/.ssh/known_hosts:/home/opencode/.ssh/known_hosts:ro
 
       # Repositories OpenCode is allowed to modify.
       - /mnt/data/dev/projects:/workspace

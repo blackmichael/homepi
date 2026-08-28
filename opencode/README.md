@@ -125,6 +125,16 @@ or:
 
 unless that additional access is explicitly required.
 
+### File ownership
+
+Ensure that the opencode user owns the opencode directories.
+```bash
+sudo mkdir -p \
+  /mnt/data/dev/opencode/{data,config,agents,npm}
+
+sudo chown -R 1000:1000 /mnt/data/dev/opencode
+```
+
 ### Port
 
 Only TCP port `3333` is published from the container. It is used for the OpenCode web server.

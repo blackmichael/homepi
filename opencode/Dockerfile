@@ -27,6 +27,12 @@ RUN addgroup -S -g 1000 opencode 2>/dev/null || true \
         /home/opencode \
         /workspace
 
+# SSH
+RUN mkdir -p /home/opencode/.ssh && chown opencode:opencode /home/opencode/.ssh
+
+# xdg-open bug workaround
+RUN touch /usr/local/bin/xdg-open; chmod +x /usr/local/bin/xdg-open
+
 USER opencode
 
 ENV HOME=/home/opencode
@@ -39,5 +45,5 @@ WORKDIR /workspace
 EXPOSE 4096
 EXPOSE 3333
 
-CMD ["opencode", "web", "--hostname", "0.0.0.0", "--port", "4096"]
+CMD ["web", "--hostname", "0.0.0.0", "--port", "4096"]
 
