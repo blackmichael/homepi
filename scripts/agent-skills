@@ -1,0 +1,6 @@
+#!/bin/sh
+
+exec docker compose \
+  -f /mnt/data/dev/homepi/opencode/docker-compose.yml \
+  exec opencode \
+  npx skills@latest "$@"

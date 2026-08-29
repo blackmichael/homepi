@@ -89,6 +89,32 @@ To remove application support:
 2. Remove or disable dispatch step in application repo workflow.
 3. Remove app directory from this repo if service is retired.
 
+## OpenCode
+Run a OpenCode web server, which can then be served over tailnet to any device on your VPN.
+```bash
+cd opencode
+docker compose up -d --build
+```
+Note: you may need to `chown` permissions on opencode-specific directories.
+
+### Agent Skills
+Manage agent skills via `scripts/agent-skills`, which runs `npx skills` commands in the opencode container for you.
+
+Set up a symlink for easy access.
+```bash
+sudo ln -s /mnt/data/dev/homepi/scripts/agent-skills /usr/local/bin/agent-skills
+```
+
+Add new skills
+```bash
+agent-skills add vercel-labs/agent-skills
+```
+
+List global skills
+```bash
+agent-skills list -g
+```
+
 ## Notes
 
 We do not use Docker Compose `env_file` for `.env.template` files containing `op://...` references. Compose reads `env_file` values itself, so those references would not be resolved by `op run`.
