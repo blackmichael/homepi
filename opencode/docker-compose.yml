@@ -14,7 +14,7 @@ services:
     volumes:
       # SSH (opencode-specific key manually generated)
       - /mnt/data/dev/opencode/ssh/id_ed25519:/home/opencode/.ssh/id_ed25519:ro
-      - /home/michael/.ssh/known_hosts:/home/opencode/.ssh/known_hosts:ro
+      - /home/michaelblack/.ssh/known_hosts:/home/opencode/.ssh/known_hosts:ro
 
       # Repositories OpenCode is allowed to modify.
       - /mnt/data/dev/projects:/workspace
