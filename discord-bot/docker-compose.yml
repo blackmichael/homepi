@@ -1,0 +1,8 @@
+services:
+  discord-bot:
+    image: potatobot:latest
+    restart: unless-stopped
+    environment:
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      TYPESAFE_API_KEY: ${TYPESAFE_API_KEY}
+
