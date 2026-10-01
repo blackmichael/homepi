@@ -1,6 +1,6 @@
 services:
   discord-bot:
-    image: potatobot:latest
+    image: ghcr.io/blackmichael/discord-bot:latest
     restart: unless-stopped
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
