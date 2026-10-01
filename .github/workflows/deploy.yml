@@ -42,4 +42,4 @@ jobs:
 
       - name: Deploy app
         shell: bash
-        run: ./homepi.sh --start --app "${{ steps.target.outputs.app }}" --pull --no-secrets
+        run: ./homepi.sh --start --app "${{ steps.target.outputs.app }}" --pull
