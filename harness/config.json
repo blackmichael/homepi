@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "agents": {
+    "providers": {
+      "omp": {
+        "enabled": true
+      }
+    }
+  }
+}

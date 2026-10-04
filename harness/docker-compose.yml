@@ -1,0 +1,38 @@
+services:
+  paseo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: paseo
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:6767:6767"
+      - "127.0.0.1:3333:3333"
+
+    environment:
+      PASEO_PASSWORD: "${PASEO_PASSWORD}"
+      PASEO_HOSTNAMES: "${PASEO_HOSTNAMES}"
+
+    volumes:
+      # SSH identity and host keys used by agents for GitHub.
+      - /mnt/data/dev/ssh/id_ed25519:/home/paseo/.ssh/id_ed25519:ro
+      - /mnt/data/dev/paseo/home/.ssh/known_hosts:/home/paseo/.ssh/known_hosts:ro
+
+      # Repositories Paseo/OMP may read and modify.
+      - /mnt/data/dev/projects:/workspace
+
+      # Paseo state, OMP config/credentials, and worktrees.
+      - /mnt/data/dev/paseo/home:/home/paseo
+
+    mem_limit: 3g
+    memswap_limit: 4g
+    cpus: 2.0
+    pids_limit: 512
+
+    tmpfs:
+      - /tmp:size=512m
+
+    security_opt:
+      - no-new-privileges:true

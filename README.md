@@ -89,13 +89,16 @@ To remove application support:
 2. Remove or disable dispatch step in application repo workflow.
 3. Remove app directory from this repo if service is retired.
 
-## OpenCode
-Run a OpenCode web server, which can then be served over tailnet to any device on your VPN.
+## Harness
+The Paseo + OMP service is the current remote agent harness. See [`harness/README.md`](harness/README.md) for one-time setup, 1Password, and Tailscale Serve instructions. Start it from the repository root with:
 ```bash
-cd opencode
-docker compose up -d --build
+./harness/setup.sh
+docker compose -f harness/docker-compose.yml build --pull
+./homepi.sh --start --app harness
 ```
-Note: you may need to `chown` permissions on opencode-specific directories.
+
+## Legacy OpenCode
+The `opencode/` service is retained as the predecessor to `harness/`.
 
 ### Agent Skills
 Manage agent skills via `scripts/agent-skills`, which runs `npx skills` commands in the opencode container for you.
