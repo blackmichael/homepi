@@ -46,6 +46,20 @@ For more usage:
 ./homepi.sh --help
 ```
 
+## Beszel Monitoring
+
+Beszel is deployed as the `beszel` app. The hub listens on `127.0.0.1:8090` only and is not routed through Traefik; expose it privately with Tailscale Serve. The included agent monitors this Raspberry Pi and its Docker containers; host networking is used so the hub can reach the agent on port `45876`.
+
+On first setup, start the hub without secrets, create the admin account, and add a system in the Beszel UI. Use the agent key and token shown by Beszel as the `BESZEL_AGENT_KEY` and `BESZEL_AGENT_TOKEN` references in `beszel/.env.template` (store both values in 1Password). Then start the app normally so `op run` resolves the values:
+
+```zsh
+./homepi.sh --start --app beszel --no-secrets
+# Configure the agent credentials in beszel/.env.template after creating the system.
+./homepi.sh --start --app beszel
+```
+
+The hub persists data in the `beszel_data` Docker volume. Keep the agent key and token private.
+
 ## Deploy Automation
 
 GitHub Actions can deploy supported applications automatically after new `:latest` images are pushed to `ghcr.io`.
