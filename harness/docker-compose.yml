@@ -15,7 +15,12 @@ services:
       PASEO_PASSWORD: "${PASEO_PASSWORD}"
       PASEO_HOSTNAMES: "${PASEO_HOSTNAMES}"
       GH_TOKEN: "${GH_TOKEN}"
-
+      GIT_CONFIG_COUNT: "2"
+      GIT_CONFIG_KEY_0: "user.name"
+      GIT_CONFIG_VALUE_0: "Michael Black"
+      GIT_CONFIG_KEY_1: "user.email"
+      GIT_CONFIG_VALUE_1: "michaelpblack16@gmail.com"
+      PASEO_LOG_LEVEL: "warn"
     volumes:
       # SSH identity and host keys used by agents for GitHub.
       - /mnt/data/dev/ssh/id_ed25519:/home/paseo/.ssh/id_ed25519:ro
@@ -23,6 +28,7 @@ services:
 
       # Repositories Paseo/OMP may read and modify.
       - /mnt/data/dev/projects:/workspace
+      - /mnt/data/dev/homepi:/workspace/homepi
 
       # Paseo state, OMP config/credentials, and worktrees.
       - /mnt/data/dev/paseo/home:/home/paseo
