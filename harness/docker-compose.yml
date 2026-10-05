@@ -14,6 +14,7 @@ services:
     environment:
       PASEO_PASSWORD: "${PASEO_PASSWORD}"
       PASEO_HOSTNAMES: "${PASEO_HOSTNAMES}"
+      GH_TOKEN: "${GH_TOKEN}"
 
     volumes:
       # SSH identity and host keys used by agents for GitHub.
