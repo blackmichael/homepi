@@ -67,8 +67,10 @@ GitHub Actions can deploy supported applications automatically after new `:lates
 `homepi` expects repo-scoped self-hosted runner on Raspberry Pi with labels `self-hosted`, `linux`, `arm64`, and `homepi-deploy`. Deploy workflow runs only on that runner and executes:
 
 ```zsh
-./homepi.sh --start --app <app-dir> --pull --no-secrets
+./homepi.sh --start --app <app-dir> --pull
 ```
+
+Apps with `.env.template` use `op run`; the deployment runner must have authenticated 1Password CLI access for apps with secret references.
 
 Supported application mappings live in `.github/deploy-targets.txt`.
 

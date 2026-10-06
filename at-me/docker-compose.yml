@@ -1,0 +1,27 @@
+services:
+  at-me:
+    image: ghcr.io/blackmichael/at-me:latest
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    networks:
+      - proxy_external
+    environment:
+      PORT: ${PORT}
+      TARGET_HANDLE: ${TARGET_HANDLE}
+      JETSTREAM_SERVICE: ${JETSTREAM_SERVICE}
+      JETSTREAM_API_KEY: ${JETSTREAM_API_KEY}
+    volumes:
+      - at_me_data:/app/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.at-me.rule=Host(`at.michaelblack.xyz`)"
+      - "traefik.http.routers.at-me.entrypoints=web"
+      - "traefik.http.services.at-me.loadbalancer.server.port=3000"
+
+networks:
+  proxy_external:
+    external: true
+
+volumes:
+  at_me_data:

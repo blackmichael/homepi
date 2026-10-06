@@ -3,7 +3,7 @@
 ## Repository Shape
 
 - This repository manages Raspberry Pi services with Docker Compose; there is no package manager, application build, or automated test suite.
-- Each top-level directory containing `docker-compose.yml` or `docker-compose.yaml` is an app discovered by `homepi.sh`; currently this includes `infrastructure`, `simple-web`, `bluesky-api`, and `f1pickem-web`.
+- Each top-level directory containing `docker-compose.yml` or `docker-compose.yaml` is an app discovered by `homepi.sh`; currently this includes `infrastructure`, `simple-web`, `bluesky-api`, `f1pickem-web`, and `at-me`.
 - `infrastructure` provides the external `proxy_external` Docker network, Traefik, and the locally managed Cloudflare tunnel. Other apps use Traefik labels for routing on that network.
 
 ## Running Services
@@ -23,6 +23,6 @@
 
 ## Deployment
 
-- GitHub Actions deployment runs only on a self-hosted `linux`/`arm64` runner labeled `homepi-deploy` and invokes `./homepi.sh --start --app <app> --pull --no-secrets`.
+- GitHub Actions deployment runs only on a self-hosted `linux`/`arm64` runner labeled `homepi-deploy` and invokes `./homepi.sh --start --app <app> --pull`. Apps with `.env.template` use `op run`, so the runner must have authenticated 1Password CLI access for secret-backed apps.
 - Automatic deployment supports only mappings in `.github/deploy-targets.txt`; update that file when adding a source-repository-triggered app.
 - Resolve and validate mappings with `bash ./scripts/resolve-deploy-target.sh --app <app>` or `bash ./scripts/resolve-deploy-target.sh --source-repo <owner/repo>` before changing deployment wiring.
