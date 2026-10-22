@@ -12,14 +12,20 @@ From the repository root, run:
 
 The script prepares persistent directories, installs `config.json` into Paseo's state directory (without overwriting an existing config), copies your SSH `known_hosts`, and sets ownership for Paseo's container user (`1000:1000`). It expects the shared GitHub key at `/mnt/data/dev/ssh/id_ed25519`; ensure that key is authorized with GitHub. To use a different source for `known_hosts`, set `KNOWN_HOSTS_SOURCE` when running the script.
 
-`harness/.env.template` references Paseo settings in 1Password. Build the image, then start from the repository root using 1Password Secure's `ops` wrapper to resolve the template:
+`harness/.env.template` references Paseo settings in 1Password. Start from the repository root with:
 
 ```bash
-docker compose -f harness/docker-compose.yml build --pull
-sudo ops -- ./homepi.sh --start --app harness
+sudo ops -- ./homepi.sh --start --app harness --build
 ```
 
-Rebuild after Dockerfile changes; use the `ops` command again whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
+Add `--no-cache` to rebuild all image layers and refresh packages installed by the Dockerfile:
+
+```bash
+sudo ops -- ./homepi.sh --start --app harness --build --no-cache
+```
+
+`--build` pulls the latest base image but reuses cached build layers; `--no-cache` forces those layers to run again. Use the `ops` command whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
+
 
 ## Remote access over Tailscale
 

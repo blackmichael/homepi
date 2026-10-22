@@ -48,20 +48,16 @@ cleanup_runtime_secrets() {
     rmdir "$runtime_dir" 2>/dev/null || true
 }
 
-run_compose_up() {
+run_compose_command() {
     local compose_file="$1"
     local env_template="$2"
-    local pull="$3"
+    shift 2
 
     local cmd=(docker compose)
     if [[ -n "$env_template" && "$NO_SECRETS" == "true" ]]; then
         cmd+=(--env-file "$env_template")
     fi
-    cmd+=(-f "$compose_file" up -d)
-
-    if [[ "$pull" == "true" ]]; then
-        cmd+=(--pull always)
-    fi
+    cmd+=(-f "$compose_file" "$@")
 
     if [[ -n "$env_template" && "$NO_SECRETS" == "false" ]]; then
         if ! command -v op >/dev/null 2>&1; then
@@ -76,6 +72,28 @@ run_compose_up() {
     "${cmd[@]}"
 }
 
+run_compose_up() {
+    local compose_file="$1"
+    local env_template="$2"
+    local pull="$3"
+    local build="$4"
+    local no_cache="$5"
+
+    if [[ "$build" == "true" ]]; then
+        local build_args=(build --pull)
+        if [[ "$no_cache" == "true" ]]; then
+            build_args+=(--no-cache)
+        fi
+        run_compose_command "$compose_file" "$env_template" "${build_args[@]}"
+    fi
+
+    local up_args=(up -d)
+    if [[ "$pull" == "true" ]]; then
+        up_args+=(--pull always)
+    fi
+    run_compose_command "$compose_file" "$env_template" "${up_args[@]}"
+}
+
 usage() {
     cat <<EOF
 Usage: $(basename "$0") [OPTIONS]
@@ -86,6 +104,8 @@ Options:
   --start          Start specified apps
   --stop           Stop specified apps
   --pull           Pull latest images before starting
+  --build          Build local images before starting (also pulls base images)
+  --no-cache       Rebuild images without using the build cache (requires --build)
   --no-secrets     Skip loading variables through 1Password
   --app <apps>     Space-separated list of app names, or "all"
                    Available apps: ${ALL_APPS[*]}
@@ -94,11 +114,14 @@ Options:
 Examples:
   $(basename "$0") --start --app all
   $(basename "$0") --start --app infrastructure simple-web --pull
+  $(basename "$0") --start --app harness --build --no-cache
   $(basename "$0") --start --app infrastructure --no-secrets
   $(basename "$0") --stop --app bluesky-api
   $(basename "$0") --stop --app all
 EOF
 }
+
+
 
 ensure_network() {
     if ! docker network inspect "$NETWORK_NAME" &>/dev/null; then
@@ -117,6 +140,8 @@ remove_network() {
 start_app() {
     local app="$1"
     local pull="$2"
+    local build="$3"
+    local no_cache="$4"
     local compose_dir="$SCRIPT_DIR/$app"
     local env_template=""
     local compose_file
@@ -136,7 +161,7 @@ start_app() {
     fi
 
     echo "Starting $app..."
-    run_compose_up "$compose_file" "$env_template" "$pull"
+    run_compose_up "$compose_file" "$env_template" "$pull" "$build" "$no_cache"
 }
 
 stop_app() {
@@ -173,7 +198,8 @@ ACTION=""
 APPS=()
 PULL="false"
 NO_SECRETS="false"
-
+BUILD="false"
+NO_CACHE="false"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --start)
@@ -186,6 +212,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --pull)
             PULL="true"
+            shift
+            ;;
+        --build)
+            BUILD="true"
+            shift
+            ;;
+        --no-cache)
+            NO_CACHE="true"
             shift
             ;;
         --no-secrets)
@@ -223,6 +257,11 @@ if [[ ${#APPS[@]} -eq 0 ]]; then
     usage
     exit 1
 fi
+if [[ "$NO_CACHE" == "true" && "$BUILD" != "true" ]]; then
+    echo "Error: --no-cache requires --build" >&2
+    exit 1
+fi
+
 
 # Expand "all"
 if [[ ${#APPS[@]} -eq 1 && "${APPS[0]}" == "all" ]]; then
@@ -251,7 +290,7 @@ done
 if [[ "$ACTION" == "start" ]]; then
     ensure_network
     for app in "${APPS[@]}"; do
-        start_app "$app" "$PULL"
+        start_app "$app" "$PULL" "$BUILD" "$NO_CACHE"
     done
     echo "Done."
 elif [[ "$ACTION" == "stop" ]]; then

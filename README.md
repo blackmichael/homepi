@@ -106,11 +106,10 @@ To remove application support:
 3. Remove app directory from this repo if service is retired.
 
 ## Harness
-The Paseo + OMP service is the current remote agent harness. See [`harness/README.md`](harness/README.md) for one-time setup, 1Password, and Tailscale Serve instructions. Start it from the repository root with:
+The Paseo + OMP service is the current remote agent harness. See [`harness/README.md`](harness/README.md) for one-time setup, 1Password, and Tailscale Serve instructions. Build and start it from the repository root with:
 ```bash
 ./harness/setup.sh
-docker compose -f harness/docker-compose.yml build --pull
-./homepi.sh --start --app harness
+sudo ops -- ./homepi.sh --start --app harness --build --no-cache
 ```
 
 ## Legacy OpenCode

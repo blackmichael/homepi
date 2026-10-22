@@ -10,7 +10,7 @@
 
 - Use `./homepi.sh --start --app <app>...` and `./homepi.sh --stop --app <app>...`; use `--app all` to operate on every discovered app.
 - Starting automatically creates `proxy_external`; stopping `--app all` removes it, so do not manually remove the network while services are running.
-- Add `--pull` to start commands when testing or deploying the latest image.
+- Add `--pull` to start commands when testing or deploying the latest remote image. Add `--build` for locally built images; combine with `--no-cache` to refresh packages installed during the image build.
 - Apps with `.env.template` require an authenticated 1Password CLI (`op`) for normal starts. `--no-secrets` passes the template directly and is intended only where secret resolution is not needed.
 - Run from the repository root because `homepi.sh` resolves app paths relative to its own location and discovers apps from top-level directories.
 
