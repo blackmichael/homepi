@@ -40,7 +40,7 @@ Use the MagicDNS hostname and port `443` as a TCP endpoint in Paseo clients; thi
 
 ## OMP setup and maintenance
 
-The image installs Bun (required by OMP's CLI) and the `omp` package. Paseo's config at `/mnt/data/dev/paseo/home/.paseo/config.json` enables the OMP provider bridge. Log in to each model provider from inside the container as `paseo`, so credentials are saved in the persistent home:
+The image installs Bun (required by OMP's CLI) and the `omp` package. It explicitly allows the install scripts for Bun, ONNX Runtime, and protobufjs because npm blocks them by default and Bun/ONNX Runtime need them to fetch their runtime binaries. Paseo's config at `/mnt/data/dev/paseo/home/.paseo/config.json` enables the OMP provider bridge. Log in to each model provider from inside the container as `paseo`, so credentials are saved in the persistent home:
 
 ```bash
 # ChatGPT subscription / Codex OAuth (headless device flow):

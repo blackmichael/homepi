@@ -20,8 +20,10 @@ ENV NPM_CONFIG_CACHE=/tmp/npm-cache
 
 # Paseo's base image includes Node/npm. OMP's CLI has a Bun shebang and
 # requires Bun at runtime, so install the current npm and both global binaries.
+# New npm releases block dependency install scripts by default; these packages
+# need their scripts to fetch Bun and ONNX runtime binaries.
 RUN npm install -g npm@latest \
-    && npm install -g bun @oh-my-pi/pi-coding-agent \
+    && npm install -g --allow-scripts=bun,onnxruntime-node,protobufjs bun @oh-my-pi/pi-coding-agent \
     && node --version \
     && npm --version \
     && bun --version \
