@@ -24,7 +24,7 @@ Add `--no-cache` to rebuild all image layers and refresh packages installed by t
 sudo ops -- ./homepi.sh --start --app harness --build --no-cache
 ```
 
-`--build` pulls the latest base image but reuses cached build layers; `--no-cache` forces those layers to run again. Use the `ops` command whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
+`--build` pulls the latest base image but reuses cached build layers; `--no-cache` forces those layers to run again. The image upgrades npm and installs the current Bun and OMP packages. npm's cache is isolated under `/tmp/npm-cache`, not persisted in the Paseo home bind mount, so root-created cache files cannot break npm when agent processes run as `paseo`. Use the `ops` command whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
 
 
 ## Remote access over Tailscale
