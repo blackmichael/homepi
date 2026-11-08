@@ -1,0 +1,15 @@
+services:
+  pocket-games:
+    image: ghcr.io/blackmichael/pocket-games:latest
+    restart: unless-stopped
+    networks:
+      - proxy_external
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pocket-games.rule=Host(`games.michaelblack.xyz`)"
+      - "traefik.http.routers.pocket-games.entrypoints=web"
+      - "traefik.http.services.pocket-games.loadbalancer.server.port=8080"
+
+networks:
+  proxy_external:
+    external: true
