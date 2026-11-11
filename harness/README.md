@@ -10,7 +10,7 @@ From the repository root, run:
 ./harness/setup.sh
 ```
 
-The script prepares persistent directories, installs `config.json` into Paseo's state directory (without overwriting an existing config), copies your SSH `known_hosts`, and sets ownership for Paseo's container user (`1000:1000`). It expects the shared GitHub key at `/mnt/data/dev/ssh/id_ed25519`; ensure that key is authorized with GitHub. To use a different source for `known_hosts`, set `KNOWN_HOSTS_SOURCE` when running the script.
+The script prepares persistent directories, installs `config.json` into Paseo's state directory and global agent rules into `/mnt/data/dev/paseo/home/.omp/agent/RULES.md`. It preserves existing config and rules, adding each HomePi rule only once. The sticky rules direct browser-based work to OMP's `browser` tool rather than installing Chromium and direct development web servers to port `3333`, which Compose exposes on host loopback. Start a new OMP session after setup to load the rules. The script copies your SSH `known_hosts` and sets ownership for Paseo's container user (`1000:1000`). It expects the shared GitHub key at `/mnt/data/dev/ssh/id_ed25519`; ensure that key is authorized with GitHub. To use a different source for `known_hosts`, set `KNOWN_HOSTS_SOURCE` when running the script.
 
 `harness/.env.template` references Paseo settings in 1Password. Start from the repository root with:
 
@@ -24,7 +24,7 @@ Add `--no-cache` to rebuild all image layers and refresh packages installed by t
 sudo ops -- ./homepi.sh --start --app harness --build --no-cache
 ```
 
-`--build` pulls the latest base image but reuses cached build layers; `--no-cache` forces those layers to run again. The image upgrades npm and installs the current Bun and OMP packages. npm's cache is isolated under `/tmp/npm-cache`, not persisted in the Paseo home bind mount, so root-created cache files cannot break npm when agent processes run as `paseo`. Use the `ops` command whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
+`--build` pulls the latest base image but reuses cached build layers; `--no-cache` forces those layers to run again. The image upgrades npm and installs the current Bun and OMP packages, then removes the `apt`/`apt-get` frontends from the runtime image. Add OS-level dependencies in the Dockerfile and rebuild; agents cannot use `apt-get` in sessions. npm's cache is isolated under `/tmp/npm-cache`, not persisted in the Paseo home bind mount, so root-created cache files cannot break npm when agent processes run as `paseo`. Use the `ops` command whenever starting the service. The Compose port is bound to host loopback only. For a direct local check, open `http://127.0.0.1:6767`.
 
 
 ## Remote access over Tailscale

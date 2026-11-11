@@ -6,6 +6,10 @@ PASEO_DIR="/mnt/data/dev/paseo"
 PASEO_HOME="$PASEO_DIR/home"
 SSH_DIR="$PASEO_HOME/.ssh"
 PASEO_STATE_DIR="$PASEO_HOME/.paseo"
+PASEO_AGENT_DIR="$PASEO_HOME/.omp/agent"
+PASEO_AGENT_RULES="$PASEO_AGENT_DIR/RULES.md"
+PASEO_AGENT_RULES_SOURCE="$SCRIPT_DIR/omp-agent/RULES.md"
+PASEO_PORT_RULE_SOURCE="$SCRIPT_DIR/omp-agent/development-server-policy.md"
 SSH_KEY="/mnt/data/dev/ssh/id_ed25519"
 KNOWN_HOSTS_SOURCE="${KNOWN_HOSTS_SOURCE:-${HOME:-/root}/.ssh/known_hosts}"
 
@@ -21,6 +25,22 @@ if [[ ! -e "$CONFIG_FILE" ]]; then
     install -m 600 "$SCRIPT_DIR/config.json" "$CONFIG_FILE"
 else
     echo "Keeping existing Paseo config: $CONFIG_FILE"
+fi
+
+if [[ ! -e "$PASEO_AGENT_RULES" ]]; then
+    install -D -m 644 "$PASEO_AGENT_RULES_SOURCE" "$PASEO_AGENT_RULES"
+    printf '\n' >> "$PASEO_AGENT_RULES"
+    cat "$PASEO_PORT_RULE_SOURCE" >> "$PASEO_AGENT_RULES"
+elif ! grep -Fq '# HomePi harness browser policy' "$PASEO_AGENT_RULES"; then
+    printf '\n' >> "$PASEO_AGENT_RULES"
+    cat "$PASEO_AGENT_RULES_SOURCE" >> "$PASEO_AGENT_RULES"
+    echo "Added HomePi browser policy to existing Paseo agent rules: $PASEO_AGENT_RULES"
+fi
+
+if ! grep -Fq '# HomePi development server port policy' "$PASEO_AGENT_RULES"; then
+    printf '\n' >> "$PASEO_AGENT_RULES"
+    cat "$PASEO_PORT_RULE_SOURCE" >> "$PASEO_AGENT_RULES"
+    echo "Added HomePi development server port policy to Paseo agent rules: $PASEO_AGENT_RULES"
 fi
 
 KNOWN_HOSTS_FILE="$SSH_DIR/known_hosts"
@@ -44,5 +64,5 @@ elif [[ "$(id -u):$(id -g)" != "1000:1000" ]]; then
     fi
 fi
 
-echo "Paseo directories and OMP provider config are ready under $PASEO_HOME."
+echo "Paseo directories, OMP provider config, and agent rules are ready under $PASEO_HOME."
 echo "Start the service from the repository root with: sudo ops -- ./homepi.sh --start --app harness"

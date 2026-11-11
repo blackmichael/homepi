@@ -1,0 +1,3 @@
+# HomePi harness browser policy
+
+Do not install Chromium, another browser, or browser automation packages in the shared harness container; do not use `apt-get` to add tools. For interactive pages, authenticated sessions, JavaScript-heavy UI, or visual verification, use OMP's `browser` tool and its connected/relayed browser when available. If it is unavailable, state that limitation and use the project's existing preview or sufficient non-browser checks; do not work around the missing browser by installing one. Prefer ordinary HTTP requests or project-provided checks when browser interaction is unnecessary.

@@ -29,6 +29,12 @@ RUN npm install -g npm@latest \
     && bun --version \
     && omp --version
 
+# Agents run unprivileged, and do not need a runtime package manager. Remove
+# apt frontends after build-time package installation to prevent repeated
+# attempts to install host tools such as Chromium in agent sessions.
+RUN rm -f /usr/bin/apt-get /usr/bin/apt /usr/bin/apt-cache /usr/bin/apt-mark /usr/bin/apt-config \
+    && ! command -v apt-get
+
 # Keep root as the entrypoint user: Paseo normalizes mounted-volume ownership,
 # then drops the daemon and agent processes to its non-root paseo user (uid 1000).
 WORKDIR /workspace
